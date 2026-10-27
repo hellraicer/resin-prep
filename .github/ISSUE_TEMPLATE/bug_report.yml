@@ -1,0 +1,30 @@
+name: Bug report
+description: Report a reproducible problem in Resin Prep.
+title: "[Bug] "
+body:
+  - type: input
+    id: environment
+    attributes:
+      label: Blender version and operating system
+      placeholder: Blender 5.2.0 LTS, Windows 11
+    validations:
+      required: true
+  - type: input
+    id: units
+    attributes:
+      label: Units mode and relevant settings
+      placeholder: 1 Blender unit = 1 mm; XY 0.75 mm; Z 0.5 mm
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Include expected behavior, actual behavior and a small non-confidential example if possible.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Relevant report or error
+      description: Remove personal paths and confidential model data before posting.
