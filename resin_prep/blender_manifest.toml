@@ -1,0 +1,12 @@
+schema_version = "1.0.0"
+id = "resin_prep"
+version = "0.3.0"
+name = "Resin Prep"
+tagline = "Resin mesh preparation, coarse layer checks and UVtools bridge"
+maintainer = "Resin Prep contributors"
+type = "add-on"
+tags = ["Mesh", "3D View", "Import-Export"]
+blender_version_min = "4.2.0"
+license = ["SPDX:GPL-3.0-or-later"]
+[permissions]
+files = "Export meshes and read a selected sliced file using UVtools"
