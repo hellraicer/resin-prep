@@ -1,0 +1,51 @@
+name: Validate Blender extension
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  blender:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Download official Blender 5.2.0 and verify checksum
+        shell: bash
+        run: |
+          mkdir -p "$RUNNER_TEMP/blender"
+          cd "$RUNNER_TEMP/blender"
+          base='https://download.blender.org/release/Blender5.2'
+          curl --fail --location --retry 3 "$base/blender-5.2.0-linux-x64.tar.xz" -o blender-5.2.0-linux-x64.tar.xz
+          curl --fail --location --retry 3 "$base/blender-5.2.0.sha256" -o checksums.txt
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+          name = 'blender-5.2.0-linux-x64.tar.xz'
+          lines = [line for line in Path('checksums.txt').read_text().splitlines() if name in line]
+          assert len(lines) == 1, 'Missing/ambiguous checksum'
+          expected = lines[0].split()[0]
+          assert hashlib.sha256(Path(name).read_bytes()).hexdigest() == expected, 'Checksum mismatch'
+          PY
+          tar -xf blender-5.2.0-linux-x64.tar.xz
+          echo "$RUNNER_TEMP/blender/blender-5.2.0-linux-x64" >> "$GITHUB_PATH"
+      - name: Run model, repair and package-install suites
+        run: python scripts/run_tests.py --blender blender
+      - name: Validate package manifest
+        run: blender --factory-startup --command extension validate dist/resin-prep-0.3.0.zip
+      - name: Upload package and test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resin-prep-validation
+          path: |
+            dist/
+            reports/
+          if-no-files-found: warn
